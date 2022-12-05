@@ -1,8 +1,7 @@
-const Alert=()=>{
+const Alert=({type,msg,list})=>{
     return(
         <>
-        Alert Component
-        </>
+<p className={`alert alert-${type}`}>{msg}</p>        </>
     )
 }
 export default Alert;
