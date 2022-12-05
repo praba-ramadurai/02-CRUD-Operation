@@ -1,37 +1,49 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import List from "./List";
 import Alert from "./Alert";
 
+const getLocalStorage=()=>{
+  let list = localStorage.getItem('list')
+  if(list){
+    return (list=JSON.parse(localStorage.getItem('list')))
+  }
+  else{
+    return[];
+  }
+}
+
 function App() {
   const [name, setName] = useState("");
-  const [list, setList] = useState([]);
+  const [list, setList] = useState(getLocalStorage());
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [alert, setAlert] = useState({ show: false, msg: "", type: "" });
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name) {
-      showAlert(true, "Please Enter Value", "danger");
+      showAlert(true, 'danger', 'please enter value');
     } else if (name && isEditing) {
       setList(
-        list.map((item)=>{
-          if(item.id ===editId){
-            return{...item,title:name}
+        list.map((item) => {
+          if (item.id === editId) {
+            return { ...item, title: name };
           }
           return item;
         })
-      )
+      );
       setName('');
       setEditId(null);
       setIsEditing(false);
-      showAlert(true, "Value Changed", "sucess");
+      showAlert(true, 'success', 'value changed');
     } else {
-      showAlert(true, "Item Added to the List", "sucess");
-      const newItem = {id:new Date().getTime().toString(),title:name}
-      setList([...list,newItem]);
+      showAlert(true, 'success', 'item added to the list');
+      const newItem = { id: new Date().getTime().toString(), title: name };
+
+      setList([...list, newItem]);
       setName('');
     }
   };
+
   const showAlert = (show = false, msg = "", type = "") => {
     setAlert({ show, msg, type });
   };
@@ -45,7 +57,7 @@ function App() {
   }
 
   const removeItem=(id)=>{
-    setList(list.filter((item)=>item.id ===!id))
+    setList(list.filter((item)=>item.id !==id))
     showAlert(true,'Item Removed','danger') 
   }
 
@@ -53,10 +65,14 @@ function App() {
     showAlert(true,'Item Empty','danger')
     setList([]);
   }
+
+  useEffect(()=>{
+localStorage.setItem('list',JSON.stringify(list));
+  },[list])
   return (
     <section className="section-center">
       <form className="grocery-form" onSubmit={handleSubmit}>
-        {alert.show && <Alert {...alert} list={list} />}
+        {alert.show && <Alert {...alert} removeAlert={showAlert} list={list} />}
         <h3>grocery bud</h3>
         <div className="form-control">
           <input
